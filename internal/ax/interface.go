@@ -2,23 +2,23 @@ package ax
 
 import "context"
 
-// WindowService はAX API操作を抽象化するインターフェース。
-// cgo依存コードとビジネスロジックを分離し、ユニットテストをモックで実行可能にする。
+// WindowService is the interface that abstracts AX API operations.
+// It separates cgo-dependent code from business logic, enabling unit tests via mocks.
 type WindowService interface {
-	// ListWindows は現在開いているすべてのウィンドウを返す。
-	// メニューバーのみのアプリ（標準ウィンドウなし）は除外する。
+	// ListWindows returns all currently open windows.
+	// Menu-bar-only apps (with no standard windows) are excluded.
 	ListWindows(ctx context.Context) ([]Window, error)
 
-	// ListScreens は接続中のすべてのディスプレイを返す。
+	// ListScreens returns all connected displays.
 	ListScreens(ctx context.Context) ([]Screen, error)
 
-	// MoveWindow は指定プロセス・タイトルのウィンドウを移動する。
+	// MoveWindow moves the window identified by the given process and title.
 	MoveWindow(ctx context.Context, pid uint32, title string, x, y int) error
 
-	// ResizeWindow は指定プロセス・タイトルのウィンドウをリサイズする。
+	// ResizeWindow resizes the window identified by the given process and title.
 	ResizeWindow(ctx context.Context, pid uint32, title string, w, h int) error
 
-	// CheckPermission はAccessibility権限の有無を確認する。
-	// 権限がない場合はPermissionErrorを返す。
+	// CheckPermission verifies that Accessibility permission is granted.
+	// Returns a PermissionError if permission is not available.
 	CheckPermission() error
 }

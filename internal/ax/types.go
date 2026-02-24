@@ -1,6 +1,6 @@
 package ax
 
-// WindowState はウィンドウの表示状態を表す。
+// WindowState represents the display state of a window.
 type WindowState string
 
 const (
@@ -10,7 +10,7 @@ const (
 	StateHidden     WindowState = "hidden"
 )
 
-// Window はmacOS上の個別アプリケーションウィンドウを表す。
+// Window represents an individual application window on macOS.
 type Window struct {
 	AppName    string      `json:"app_name"`
 	Title      string      `json:"title"`
@@ -24,7 +24,7 @@ type Window struct {
 	ScreenName string      `json:"screen_name"`
 }
 
-// Screen はmacOS上の個別ディスプレイを表す。
+// Screen represents an individual display on macOS.
 type Screen struct {
 	ID        uint32 `json:"id"`
 	Name      string `json:"name"`
@@ -35,7 +35,7 @@ type Screen struct {
 	IsPrimary bool   `json:"is_primary"`
 }
 
-// Application はmacOS上で実行中のアプリケーションを表す。
+// Application represents a running application on macOS.
 type Application struct {
 	Name    string   `json:"name"`
 	PID     uint32   `json:"pid"`

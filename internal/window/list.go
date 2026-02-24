@@ -7,13 +7,13 @@ import (
 	"github.com/peacock0803sz/mado/internal/ax"
 )
 
-// ListOptions はlist コマンドのフィルタオプション。
+// ListOptions holds filter options for the list command.
 type ListOptions struct {
 	AppFilter    string
 	ScreenFilter string
 }
 
-// List はウィンドウ一覧を取得してフィルタリングして返す。
+// List retrieves all windows and returns them after applying filters.
 func List(ctx context.Context, svc ax.WindowService, opts ListOptions) ([]ax.Window, error) {
 	windows, err := svc.ListWindows(ctx)
 	if err != nil {
@@ -23,7 +23,7 @@ func List(ctx context.Context, svc ax.WindowService, opts ListOptions) ([]ax.Win
 	return filterWindows(windows, opts), nil
 }
 
-// filterWindows はフィルタオプションに基づいてウィンドウ一覧を絞り込む。
+// filterWindows narrows down the window list based on filter options.
 func filterWindows(windows []ax.Window, opts ListOptions) []ax.Window {
 	result := make([]ax.Window, 0, len(windows))
 	for _, w := range windows {
@@ -38,12 +38,12 @@ func filterWindows(windows []ax.Window, opts ListOptions) []ax.Window {
 	return result
 }
 
-// matchScreen はスクリーンIDまたは名前でウィンドウをフィルタする。
+// matchScreen filters a window by screen ID or name.
 func matchScreen(w ax.Window, filter string) bool {
-	// ID での完全一致
+	// exact match on ID
 	if w.ScreenName == filter {
 		return true
 	}
-	// スクリーン名での完全一致
+	// case-insensitive exact match on screen name
 	return strings.EqualFold(w.ScreenName, filter)
 }

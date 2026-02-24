@@ -10,7 +10,7 @@ import (
 	"github.com/peacock0803sz/mado/internal/ax"
 )
 
-// Format は出力フォーマットの種類を表す。
+// Format represents the type of output format.
 type Format string
 
 const (
@@ -18,47 +18,47 @@ const (
 	FormatJSON Format = "json"
 )
 
-// ListResponse はlist コマンドのJSON出力スキーマ。
+// ListResponse is the JSON output schema for the list command.
 type ListResponse struct {
 	SchemaVersion int         `json:"schema_version"`
 	Success       bool        `json:"success"`
 	Windows       []ax.Window `json:"windows"`
 }
 
-// MoveResponse はmove コマンドのJSON出力スキーマ。
+// MoveResponse is the JSON output schema for the move command.
 type MoveResponse struct {
 	SchemaVersion int         `json:"schema_version"`
 	Success       bool        `json:"success"`
 	Affected      []ax.Window `json:"affected"`
 }
 
-// ErrorResponse はエラー時のJSON出力スキーマ。
+// ErrorResponse is the JSON output schema for error responses.
 type ErrorResponse struct {
 	SchemaVersion int          `json:"schema_version"`
 	Success       bool         `json:"success"`
 	Error         *ErrorDetail `json:"error"`
 }
 
-// ErrorDetail はエラー詳細。
+// ErrorDetail contains the details of an error response.
 type ErrorDetail struct {
 	Code       int                `json:"code"`
 	Message    string             `json:"message"`
 	Candidates []ax.Window        `json:"candidates,omitempty"`
 }
 
-// Formatter はtext/JSONフォーマッタ。
+// Formatter writes output in either text or JSON format.
 type Formatter struct {
 	format Format
 	out    io.Writer
 	errOut io.Writer
 }
 
-// New はFormatterを生成する。
+// New creates a new Formatter.
 func New(format Format, out, errOut io.Writer) *Formatter {
 	return &Formatter{format: format, out: out, errOut: errOut}
 }
 
-// IsTerminal はstdoutがTTYかどうかを返す。
+// IsTerminal reports whether stdout is connected to a TTY.
 func IsTerminal() bool {
 	fi, err := os.Stdout.Stat()
 	if err != nil {
@@ -67,7 +67,7 @@ func IsTerminal() bool {
 	return (fi.Mode() & os.ModeCharDevice) != 0
 }
 
-// PrintWindows はウィンドウ一覧を出力する。
+// PrintWindows outputs the list of windows.
 func (f *Formatter) PrintWindows(windows []ax.Window) error {
 	if f.format == FormatJSON {
 		return f.printJSON(ListResponse{
@@ -79,7 +79,7 @@ func (f *Formatter) PrintWindows(windows []ax.Window) error {
 	return f.printWindowsText(windows)
 }
 
-// PrintMoveResult はmove結果を出力する。
+// PrintMoveResult outputs the result of a move operation.
 func (f *Formatter) PrintMoveResult(affected []ax.Window) error {
 	if f.format == FormatJSON {
 		return f.printJSON(MoveResponse{
@@ -94,7 +94,7 @@ func (f *Formatter) PrintMoveResult(affected []ax.Window) error {
 	return nil
 }
 
-// PrintError はエラーをフォーマットして出力する。
+// PrintError formats and outputs an error message.
 func (f *Formatter) PrintError(code int, message string, candidates []ax.Window) error {
 	if f.format == FormatJSON {
 		return f.printJSON(ErrorResponse{
@@ -116,7 +116,7 @@ func (f *Formatter) printWindowsText(windows []ax.Window) error {
 		return nil
 	}
 
-	// tabwriter でカラム揃え (最小幅8、タブ幅1、パディング2)
+	// align columns with tabwriter (min width 8, tab width 1, padding 2)
 	tw := tabwriter.NewWriter(f.out, 8, 1, 2, ' ', 0)
 	fmt.Fprintln(tw, "APP_NAME\tTITLE\tX\tY\tWIDTH\tHEIGHT\tSTATE\tSCREEN")
 
@@ -153,7 +153,7 @@ func (f *Formatter) printJSON(v any) error {
 	return enc.Encode(v)
 }
 
-// truncate は文字列をmax文字で切り詰める。
+// truncate truncates s to at most max runes.
 func truncate(s string, max int) string {
 	runes := []rune(s)
 	if len(runes) <= max {

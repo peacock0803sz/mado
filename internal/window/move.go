@@ -7,17 +7,17 @@ import (
 	"github.com/peacock0803sz/mado/internal/ax"
 )
 
-// Point は座標を表す。
+// Point represents a 2D coordinate.
 type Point struct {
 	X, Y int
 }
 
-// Size はサイズを表す。
+// Size represents a 2D size.
 type Size struct {
 	W, H int
 }
 
-// MoveOptions はmove コマンドのオプション。
+// MoveOptions holds the options for the move command.
 type MoveOptions struct {
 	AppFilter    string
 	TitleFilter  string
@@ -27,8 +27,8 @@ type MoveOptions struct {
 	All          bool
 }
 
-// Move は対象ウィンドウを移動またはリサイズする。
-// 複数一致かつ --all なしの場合は AmbiguousTargetError を返す。
+// Move moves or resizes the target window(s).
+// Returns AmbiguousTargetError when multiple windows match and --all is not set.
 func Move(ctx context.Context, svc ax.WindowService, opts MoveOptions) ([]ax.Window, error) {
 	windows, err := svc.ListWindows(ctx)
 	if err != nil {
@@ -53,7 +53,7 @@ func Move(ctx context.Context, svc ax.WindowService, opts MoveOptions) ([]ax.Win
 
 	var affected []ax.Window
 	for _, w := range targets {
-		// フルスクリーン状態のウィンドウは操作不可 (exit 5)
+		// fullscreen windows cannot be operated on (exit 5)
 		if w.State == ax.StateFullscreen {
 			return nil, &fullscreenError{window: w}
 		}
@@ -80,7 +80,7 @@ func Move(ctx context.Context, svc ax.WindowService, opts MoveOptions) ([]ax.Win
 	return affected, nil
 }
 
-// filterForMove はmoveコマンド用のウィンドウフィルタ。
+// filterForMove filters windows for the move command.
 func filterForMove(windows []ax.Window, opts MoveOptions) []ax.Window {
 	result := make([]ax.Window, 0)
 	for _, w := range windows {
@@ -112,7 +112,7 @@ func buildQuery(opts MoveOptions) string {
 	return strings.Join(parts, " ")
 }
 
-// fullscreenError はフルスクリーン状態のウィンドウへの操作エラー。
+// fullscreenError is returned when attempting to operate on a fullscreen window.
 type fullscreenError struct {
 	window ax.Window
 }

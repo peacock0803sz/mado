@@ -2,15 +2,15 @@ package ax
 
 import "fmt"
 
-// PermissionError はAccessibility権限がない場合のエラー。
-// エラーメッセージに macOS の解決手順を含める (Constitution II)。
+// PermissionError is returned when Accessibility permission is not granted.
+// The error message includes resolution steps for macOS.
 type PermissionError struct{}
 
 func (e *PermissionError) Error() string {
 	return "Accessibility permission not granted"
 }
 
-// Resolution は権限不足の解決手順を返す。
+// Resolution returns instructions for resolving the permission issue.
 func (e *PermissionError) Resolution() string {
 	return `To grant permission:
   1. Open System Settings → Privacy & Security → Accessibility
@@ -18,7 +18,7 @@ func (e *PermissionError) Resolution() string {
   3. Re-run the command`
 }
 
-// AmbiguousTargetError は複数のウィンドウが一致した場合のエラー。
+// AmbiguousTargetError is returned when multiple windows match the given query.
 type AmbiguousTargetError struct {
 	Query      string
 	Candidates []Window
@@ -28,7 +28,7 @@ func (e *AmbiguousTargetError) Error() string {
 	return fmt.Sprintf("ambiguous target: %d windows match %q", len(e.Candidates), e.Query)
 }
 
-// TimeoutError はAX操作タイムアウト時のエラー。
+// TimeoutError is returned when an AX operation exceeds the allowed duration.
 type TimeoutError struct {
 	Op string
 }
