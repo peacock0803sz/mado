@@ -86,12 +86,17 @@ func newMoveCmd(svc ax.WindowService, root *RootFlags) *cobra.Command {
 					_ = f.PrintError(6, "AX operation timed out", nil)
 					os.Exit(6)
 				}
+				var fsErr *window.FullscreenError
+				if errors.As(err, &fsErr) {
+					_ = f.PrintError(5, err.Error(), nil)
+					os.Exit(5)
+				}
 				switch e := err.(type) {
 				case *ax.AmbiguousTargetError:
 					_ = f.PrintError(4, e.Error(), e.Candidates)
 					os.Exit(4)
 				default:
-					return err
+					return e
 				}
 			}
 

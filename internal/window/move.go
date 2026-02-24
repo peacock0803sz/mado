@@ -55,7 +55,7 @@ func Move(ctx context.Context, svc ax.WindowService, opts MoveOptions) ([]ax.Win
 	for _, w := range targets {
 		// fullscreen windows cannot be operated on (exit 5)
 		if w.State == ax.StateFullscreen {
-			return nil, &fullscreenError{window: w}
+			return nil, &FullscreenError{Window: w}
 		}
 
 		if opts.Position != nil {
@@ -112,11 +112,11 @@ func buildQuery(opts MoveOptions) string {
 	return strings.Join(parts, " ")
 }
 
-// fullscreenError is returned when attempting to operate on a fullscreen window.
-type fullscreenError struct {
-	window ax.Window
+// FullscreenError is returned when attempting to operate on a fullscreen window.
+type FullscreenError struct {
+	Window ax.Window
 }
 
-func (e *fullscreenError) Error() string {
-	return `cannot move fullscreen window: "` + e.window.Title + `"`
+func (e *FullscreenError) Error() string {
+	return `cannot move fullscreen window: "` + e.Window.Title + `"`
 }

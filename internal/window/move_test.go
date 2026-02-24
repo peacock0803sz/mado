@@ -111,9 +111,12 @@ func TestMove_Fullscreen(t *testing.T) {
 	if err == nil {
 		t.Fatal("expected fullscreen error, got nil")
 	}
-	// verify the fullscreenError implementation
-	if err.Error() == "" {
-		t.Error("fullscreen error message should not be empty")
+	var fsErr *window.FullscreenError
+	if !errors.As(err, &fsErr) {
+		t.Fatalf("expected *window.FullscreenError, got %T: %v", err, err)
+	}
+	if fsErr.Window.AppName == "" {
+		t.Error("FullscreenError.Window should be populated")
 	}
 }
 
