@@ -8,14 +8,13 @@ linters:
     - staticcheck
     - revive
     - gosec
+  exclusions:
+    rules:
+      - path: "_test.go"
+        linters:
+          - gosec
 
 formatters:
   enable:
     - gofumpt
     - goimports
-
-issues:
-  exclude-rules:
-    - path: "_test.go"
-      linters:
-        - gosec
