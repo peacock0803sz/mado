@@ -81,6 +81,7 @@ The config file path can be overridden with the `$MADO_CONFIG` environment varia
 | Code | Meaning |
 |------|---------|
 | 0 | Success |
+| 1 | General error |
 | 2 | Accessibility permission not granted |
 | 3 | Invalid arguments (e.g. bad --position/--size value) |
 | 4 | Target window not found or multiple matches without --all |
