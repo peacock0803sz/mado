@@ -6,14 +6,14 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// newVersionCmd はversionサブコマンドを生成する (T050)。
-// Accessibility権限不要。
+// newVersionCmd creates the version subcommand (T050).
+// Does not require Accessibility permission.
 func newVersionCmd() *cobra.Command {
 	return &cobra.Command{
 		Use:   "version",
-		Short: "バージョン情報を表示する",
+		Short: "Print version information",
 		Run: func(cmd *cobra.Command, _ []string) {
-			// cmd.Root().Version はmain.goで埋め込まれる
+			// cmd.Root().Version is injected by main.go via ldflags
 			fmt.Fprintf(cmd.OutOrStdout(), "mado version %s\n", cmd.Root().Version)
 		},
 	}

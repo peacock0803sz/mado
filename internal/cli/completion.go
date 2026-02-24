@@ -4,12 +4,12 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// newCompletionCmd はcompletion サブコマンドを生成する (T049)。
-// bash/zsh/fish/powershell に対応する。Accessibility権限不要。
+// newCompletionCmd creates the completion subcommand (T049).
+// Supports bash, zsh, fish, and powershell. Does not require Accessibility permission.
 func newCompletionCmd(root *cobra.Command) *cobra.Command {
 	return &cobra.Command{
 		Use:       "completion [bash|zsh|fish|powershell]",
-		Short:     "シェル補完スクリプトを生成する",
+		Short:     "Generate shell completion scripts",
 		ValidArgs: []string{"bash", "zsh", "fish", "powershell"},
 		Args:      cobra.MatchAll(cobra.ExactArgs(1), cobra.OnlyValidArgs),
 		RunE: func(cmd *cobra.Command, args []string) error {

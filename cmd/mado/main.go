@@ -8,14 +8,14 @@ import (
 	"github.com/peacock0803sz/mado/internal/cli"
 )
 
-// version はビルド時に -ldflags で埋め込まれる。
+// version is injected at build time via -ldflags.
 var version = "dev"
 
 func main() {
 	svc := ax.NewWindowService()
 	cmd := cli.NewRootCmd(svc)
 
-	// バージョン情報をルートコマンドに注入
+	// inject the version string into the root command
 	cmd.Version = version
 
 	if err := cmd.Execute(); err != nil {
