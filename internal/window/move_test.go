@@ -139,6 +139,50 @@ func TestMove_ServiceError(t *testing.T) {
 	}
 }
 
+// partialMockService は最初の N 回の MoveWindow を成功させ、それ以降はエラーを返すモック。
+type partialMockService struct {
+	ax.MockWindowService
+	successCount int
+	callCount    int
+}
+
+func (m *partialMockService) MoveWindow(ctx context.Context, pid uint32, title string, x, y int) error {
+	m.callCount++
+	if m.callCount <= m.successCount {
+		return nil
+	}
+	return m.MoveErr
+}
+
+func TestMove_PartialSuccess(t *testing.T) {
+	svc := &partialMockService{
+		MockWindowService: ax.MockWindowService{
+			Windows: moveTestWindows,
+			MoveErr: errors.New("AX error on second window"),
+		},
+		successCount: 1,
+	}
+	opts := window.MoveOptions{
+		AppFilter: "Safari",
+		Position:  &window.Point{X: 0, Y: 0},
+		All:       true,
+	}
+	affected, err := window.Move(context.Background(), svc, opts)
+	if err == nil {
+		t.Fatal("expected PartialSuccessError, got nil")
+	}
+	var partial *ax.PartialSuccessError
+	if !errors.As(err, &partial) {
+		t.Fatalf("expected *ax.PartialSuccessError, got %T: %v", err, err)
+	}
+	if len(affected) != 1 {
+		t.Errorf("expected 1 affected window in partial success, got %d", len(affected))
+	}
+	if partial.Cause == nil {
+		t.Error("PartialSuccessError.Cause should be non-nil")
+	}
+}
+
 func TestMove_TitleFilter(t *testing.T) {
 	svc := &ax.MockWindowService{Windows: moveTestWindows}
 	opts := window.MoveOptions{

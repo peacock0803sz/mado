@@ -57,6 +57,9 @@ func Move(ctx context.Context, svc ax.WindowService, opts MoveOptions) ([]ax.Win
 
 		if opts.Position != nil {
 			if err := svc.MoveWindow(ctx, w.PID, w.Title, opts.Position.X, opts.Position.Y); err != nil {
+				if opts.All && len(affected) > 0 {
+					return affected, &ax.PartialSuccessError{Affected: affected, Cause: err}
+				}
 				return affected, err
 			}
 			w.X = opts.Position.X
@@ -65,6 +68,9 @@ func Move(ctx context.Context, svc ax.WindowService, opts MoveOptions) ([]ax.Win
 
 		if opts.Size != nil {
 			if err := svc.ResizeWindow(ctx, w.PID, w.Title, opts.Size.W, opts.Size.H); err != nil {
+				if opts.All && len(affected) > 0 {
+					return affected, &ax.PartialSuccessError{Affected: affected, Cause: err}
+				}
 				return affected, err
 			}
 			w.Width = opts.Size.W

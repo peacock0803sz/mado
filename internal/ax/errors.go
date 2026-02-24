@@ -37,6 +37,19 @@ func (e *AmbiguousTargetError) Error() string {
 	return fmt.Sprintf("ambiguous target: %d windows match %q", len(e.Candidates), e.Query)
 }
 
+// PartialSuccessError is returned when --all is used and at least one window succeeded
+// but at least one failed.
+type PartialSuccessError struct {
+	Affected []Window
+	Cause    error
+}
+
+func (e *PartialSuccessError) Error() string {
+	return fmt.Sprintf("partial success: %d window(s) moved, cause: %v", len(e.Affected), e.Cause)
+}
+
+func (e *PartialSuccessError) Unwrap() error { return e.Cause }
+
 // TimeoutError is returned when an AX operation exceeds the allowed duration.
 type TimeoutError struct {
 	Op string

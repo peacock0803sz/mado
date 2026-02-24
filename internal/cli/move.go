@@ -91,6 +91,12 @@ func newMoveCmd(svc ax.WindowService, root *RootFlags) *cobra.Command {
 					_ = f.PrintError(5, err.Error(), nil)
 					os.Exit(5)
 				}
+				var partialErr *ax.PartialSuccessError
+				if errors.As(err, &partialErr) {
+					_ = f.PrintMoveResult(partialErr.Affected)
+					_ = f.PrintError(7, partialErr.Cause.Error(), nil)
+					os.Exit(7)
+				}
 				switch e := err.(type) {
 				case *ax.NotFoundError:
 					_ = f.PrintError(4, e.Error(), nil)
