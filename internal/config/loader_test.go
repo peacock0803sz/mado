@@ -60,6 +60,20 @@ func TestLoad_InvalidYAML(t *testing.T) {
 	}
 }
 
+func TestLoad_InvalidFormat(t *testing.T) {
+	dir := t.TempDir()
+	cfgFile := filepath.Join(dir, "config.yaml")
+	if err := os.WriteFile(cfgFile, []byte("format: xml\n"), 0600); err != nil {
+		t.Fatal(err)
+	}
+
+	t.Setenv("MADO_CONFIG", cfgFile)
+	_, err := config.Load()
+	if err == nil {
+		t.Fatal("expected error for invalid format, got nil")
+	}
+}
+
 func TestLoad_EnvOverride(t *testing.T) {
 	dir := t.TempDir()
 	cfgFile := filepath.Join(dir, "config.yaml")

@@ -69,7 +69,12 @@ func Load() (Config, error) {
 
 	// apply format if specified: "text" | "json"
 	if raw.Format != "" {
-		cfg.Format = raw.Format
+		switch raw.Format {
+		case "text", "json":
+			cfg.Format = raw.Format
+		default:
+			return cfg, fmt.Errorf("config: invalid format %q (must be \"text\" or \"json\")", raw.Format)
+		}
 	}
 
 	return cfg, nil
