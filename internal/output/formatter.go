@@ -1,0 +1,163 @@
+package output
+
+import (
+	"encoding/json"
+	"fmt"
+	"io"
+	"os"
+	"text/tabwriter"
+
+	"github.com/peacock0803sz/mado/internal/ax"
+)
+
+// Format は出力フォーマットの種類を表す。
+type Format string
+
+const (
+	FormatText Format = "text"
+	FormatJSON Format = "json"
+)
+
+// ListResponse はlist コマンドのJSON出力スキーマ。
+type ListResponse struct {
+	SchemaVersion int         `json:"schema_version"`
+	Success       bool        `json:"success"`
+	Windows       []ax.Window `json:"windows"`
+}
+
+// MoveResponse はmove コマンドのJSON出力スキーマ。
+type MoveResponse struct {
+	SchemaVersion int         `json:"schema_version"`
+	Success       bool        `json:"success"`
+	Affected      []ax.Window `json:"affected"`
+}
+
+// ErrorResponse はエラー時のJSON出力スキーマ。
+type ErrorResponse struct {
+	SchemaVersion int          `json:"schema_version"`
+	Success       bool         `json:"success"`
+	Error         *ErrorDetail `json:"error"`
+}
+
+// ErrorDetail はエラー詳細。
+type ErrorDetail struct {
+	Code       int                `json:"code"`
+	Message    string             `json:"message"`
+	Candidates []ax.Window        `json:"candidates,omitempty"`
+}
+
+// Formatter はtext/JSONフォーマッタ。
+type Formatter struct {
+	format Format
+	out    io.Writer
+	errOut io.Writer
+}
+
+// New はFormatterを生成する。
+func New(format Format, out, errOut io.Writer) *Formatter {
+	return &Formatter{format: format, out: out, errOut: errOut}
+}
+
+// IsTerminal はstdoutがTTYかどうかを返す。
+func IsTerminal() bool {
+	fi, err := os.Stdout.Stat()
+	if err != nil {
+		return false
+	}
+	return (fi.Mode() & os.ModeCharDevice) != 0
+}
+
+// PrintWindows はウィンドウ一覧を出力する。
+func (f *Formatter) PrintWindows(windows []ax.Window) error {
+	if f.format == FormatJSON {
+		return f.printJSON(ListResponse{
+			SchemaVersion: 1,
+			Success:       true,
+			Windows:       windows,
+		})
+	}
+	return f.printWindowsText(windows)
+}
+
+// PrintMoveResult はmove結果を出力する。
+func (f *Formatter) PrintMoveResult(affected []ax.Window) error {
+	if f.format == FormatJSON {
+		return f.printJSON(MoveResponse{
+			SchemaVersion: 1,
+			Success:       true,
+			Affected:      affected,
+		})
+	}
+	for _, w := range affected {
+		fmt.Fprintf(f.out, "Moved: %s %q → (%d, %d)\n", w.AppName, w.Title, w.X, w.Y)
+	}
+	return nil
+}
+
+// PrintError はエラーをフォーマットして出力する。
+func (f *Formatter) PrintError(code int, message string, candidates []ax.Window) error {
+	if f.format == FormatJSON {
+		return f.printJSON(ErrorResponse{
+			SchemaVersion: 1,
+			Success:       false,
+			Error: &ErrorDetail{
+				Code:       code,
+				Message:    message,
+				Candidates: candidates,
+			},
+		})
+	}
+	return f.printErrorText(code, message, candidates)
+}
+
+func (f *Formatter) printWindowsText(windows []ax.Window) error {
+	if len(windows) == 0 {
+		fmt.Fprintln(f.out, "(no windows)")
+		return nil
+	}
+
+	// tabwriter でカラム揃え (最小幅8、タブ幅1、パディング2)
+	tw := tabwriter.NewWriter(f.out, 8, 1, 2, ' ', 0)
+	fmt.Fprintln(tw, "APP_NAME\tTITLE\tX\tY\tWIDTH\tHEIGHT\tSTATE\tSCREEN")
+
+	for _, w := range windows {
+		screenName := truncate(w.ScreenName, 20)
+		if w.State == ax.StateMinimized || w.State == ax.StateHidden {
+			screenName = "-"
+		}
+		title := truncate(w.Title, 32)
+		fmt.Fprintf(tw, "%s\t%s\t%d\t%d\t%d\t%d\t%s\t%s\n",
+			w.AppName, title, w.X, w.Y, w.Width, w.Height, w.State, screenName)
+	}
+	return tw.Flush()
+}
+
+func (f *Formatter) printErrorText(code int, message string, candidates []ax.Window) error {
+	fmt.Fprintf(f.errOut, "Error: %s\n", message)
+
+	if len(candidates) > 0 {
+		fmt.Fprintln(f.errOut, "\nCandidates:")
+		for i, c := range candidates {
+			fmt.Fprintf(f.errOut, "  %d. %s %q\tpid=%d\n", i+1, c.AppName, c.Title, c.PID)
+		}
+		fmt.Fprintln(f.errOut, "\nHint: use --title to narrow down, or --all to move all")
+	}
+
+	_ = code
+	return nil
+}
+
+func (f *Formatter) printJSON(v any) error {
+	enc := json.NewEncoder(f.out)
+	enc.SetIndent("", "  ")
+	return enc.Encode(v)
+}
+
+// truncate は文字列をmax文字で切り詰める。
+func truncate(s string, max int) string {
+	runes := []rune(s)
+	if len(runes) <= max {
+		return s
+	}
+	return string(runes[:max-1]) + "…"
+}

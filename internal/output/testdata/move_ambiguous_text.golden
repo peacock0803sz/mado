@@ -1,0 +1,7 @@
+Error: ambiguous target: 2 windows match --app "Safari"
+
+Candidates:
+  1. Safari "GitHub"	pid=5678
+  2. Safari "Apple"	pid=5678
+
+Hint: use --title to narrow down, or --all to move all
