@@ -93,6 +93,7 @@ int ax_is_minimized(AXUIElementRef win) {
 int ax_set_position(AXUIElementRef win, double x, double y) {
     CGPoint p = CGPointMake(x, y);
     AXValueRef val = AXValueCreate(kAXValueCGPointType, &p);
+    if (!val) return (int)kAXErrorFailure;
     int err = (int)AXUIElementSetAttributeValue(win, kAXPositionAttribute, val);
     CFRelease(val);
     return err;
@@ -102,6 +103,7 @@ int ax_set_position(AXUIElementRef win, double x, double y) {
 int ax_set_size(AXUIElementRef win, double w, double h) {
     CGSize s = CGSizeMake(w, h);
     AXValueRef val = AXValueCreate(kAXValueCGSizeType, &s);
+    if (!val) return (int)kAXErrorFailure;
     int err = (int)AXUIElementSetAttributeValue(win, kAXSizeAttribute, val);
     CFRelease(val);
     return err;
