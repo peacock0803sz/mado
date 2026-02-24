@@ -1,0 +1,23 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/peacock0803sz/mado/schemas/config.v1.schema.json",
+  "title": "Mado Configuration",
+  "description": "Configuration schema for ~/.config/mado/config.yaml",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "timeout": {
+      "type": "string",
+      "description": "AX operation timeout (e.g. 5s, 10s, 1m)",
+      "pattern": "^[0-9]+(ns|us|ms|s|m|h)$",
+      "default": "5s",
+      "examples": ["5s", "10s", "30s"]
+    },
+    "format": {
+      "type": "string",
+      "description": "Default output format",
+      "enum": ["text", "json"],
+      "default": "text"
+    }
+  }
+}
