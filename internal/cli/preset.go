@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/spf13/cobra"
+	"go.yaml.in/yaml/v4"
 
 	"github.com/peacock0803sz/mado/internal/ax"
 	"github.com/peacock0803sz/mado/internal/config"
@@ -23,6 +24,7 @@ func newPresetCmd(svc ax.WindowService, flags *RootFlags) *cobra.Command {
 
 	cmd.AddCommand(newPresetApplyCmd(svc, flags))
 	cmd.AddCommand(newPresetListCmd(flags))
+	cmd.AddCommand(newPresetRecCmd(svc, flags))
 	cmd.AddCommand(newPresetShowCmd(flags))
 	cmd.AddCommand(newPresetValidateCmd(flags))
 
@@ -135,6 +137,63 @@ func buildApplyResponse(name string, outcome *preset.ApplyOutcome, success bool,
 	}
 
 	return resp
+}
+
+func newPresetRecCmd(svc ax.WindowService, flags *RootFlags) *cobra.Command {
+	return &cobra.Command{
+		Use:   "rec <name> [output-path]",
+		Short: "Record current window layout as a preset",
+		Long:  "Capture the current window positions and sizes and output them as a YAML preset definition.",
+		Args:  cobra.RangeArgs(1, 2),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			f := output.New(newOutputFormat(flags.Format), os.Stdout, os.Stderr)
+			name := args[0]
+
+			outputPath := "stdout"
+			if len(args) >= 2 {
+				outputPath = args[1]
+			}
+
+			if err := svc.CheckPermission(); err != nil {
+				msg := err.Error()
+				if permErr, ok := err.(*ax.PermissionError); ok {
+					msg = permErr.Error() + "\n\n" + permErr.Resolution()
+				}
+				_ = f.PrintError(2, msg, nil)
+				os.Exit(2)
+			}
+
+			ctx, cancel := context.WithTimeout(cmd.Context(), flags.Timeout)
+			defer cancel()
+
+			p, err := preset.Record(ctx, svc, name)
+			if err != nil {
+				if errors.Is(err, context.DeadlineExceeded) {
+					_ = f.PrintError(6, "AX operation timed out", nil)
+					os.Exit(6)
+				}
+				_ = f.PrintError(3, err.Error(), nil)
+				os.Exit(3)
+			}
+
+			data, err := yaml.Marshal(p)
+			if err != nil {
+				_ = f.PrintError(1, err.Error(), nil)
+				os.Exit(1)
+			}
+
+			if outputPath == "stdout" {
+				_, err = cmd.OutOrStdout().Write(data)
+				return err
+			}
+
+			if err := os.WriteFile(outputPath, data, 0o644); err != nil {
+				_ = f.PrintError(1, err.Error(), nil)
+				os.Exit(1)
+			}
+			return nil
+		},
+	}
 }
 
 func newPresetListCmd(flags *RootFlags) *cobra.Command {

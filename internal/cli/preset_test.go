@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 
 	"github.com/peacock0803sz/mado/internal/ax"
@@ -83,5 +84,85 @@ func TestPresetApply_MissingArgs(t *testing.T) {
 	// Cobra handles ExactArgs(1) → error
 	if err == nil {
 		t.Fatal("expected error for missing args, got nil")
+	}
+}
+
+func TestPresetRec_MissingArgs(t *testing.T) {
+	svc := &ax.MockWindowService{}
+	cmd := cli.NewRootCmd(svc)
+	cmd.SetArgs([]string{"preset", "rec"})
+	var out bytes.Buffer
+	cmd.SetOut(&out)
+	cmd.SetErr(&out)
+	err := cmd.Execute()
+	// Cobra handles RangeArgs(1, 2) → error
+	if err == nil {
+		t.Fatal("expected error for missing args, got nil")
+	}
+}
+
+func TestPresetRec_Stdout(t *testing.T) {
+	svc := &ax.MockWindowService{
+		Windows: []ax.Window{
+			{AppName: "Code", Title: "main.go", PID: 1, X: 0, Y: 0, Width: 960, Height: 1080, State: ax.StateNormal},
+			{AppName: "Terminal", Title: "zsh", PID: 2, X: 960, Y: 0, Width: 960, Height: 1080, State: ax.StateNormal},
+		},
+	}
+
+	cmd := cli.NewRootCmd(svc)
+	var out bytes.Buffer
+	cmd.SetOut(&out)
+	cmd.SetErr(&out)
+	cmd.SetArgs([]string{"preset", "rec", "coding"})
+
+	err := cmd.Execute()
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	output := out.String()
+	if !strings.Contains(output, "name: coding") {
+		t.Errorf("output missing preset name, got:\n%s", output)
+	}
+	if !strings.Contains(output, "app: Code") {
+		t.Errorf("output missing Code app, got:\n%s", output)
+	}
+	if !strings.Contains(output, "app: Terminal") {
+		t.Errorf("output missing Terminal app, got:\n%s", output)
+	}
+}
+
+func TestPresetRec_ToFile(t *testing.T) {
+	svc := &ax.MockWindowService{
+		Windows: []ax.Window{
+			{AppName: "Code", Title: "main.go", PID: 1, X: 0, Y: 0, Width: 960, Height: 1080, State: ax.StateNormal},
+		},
+	}
+
+	dir := t.TempDir()
+	outFile := filepath.Join(dir, "preset.yaml")
+
+	cmd := cli.NewRootCmd(svc)
+	var out bytes.Buffer
+	cmd.SetOut(&out)
+	cmd.SetErr(&out)
+	cmd.SetArgs([]string{"preset", "rec", "coding", outFile})
+
+	err := cmd.Execute()
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	data, err := os.ReadFile(outFile)
+	if err != nil {
+		t.Fatalf("failed to read output file: %v", err)
+	}
+
+	content := string(data)
+	if !strings.Contains(content, "name: coding") {
+		t.Errorf("file missing preset name, got:\n%s", content)
+	}
+	if !strings.Contains(content, "app: Code") {
+		t.Errorf("file missing Code app, got:\n%s", content)
 	}
 }

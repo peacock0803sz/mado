@@ -34,7 +34,7 @@ func NewRootCmd(svc ax.WindowService) *cobra.Command {
 		Short: "macOS window management CLI",
 		Long: `mado — a CLI tool for managing macOS windows.
 
-Commands that require Accessibility permission: list, move, preset apply
+Commands that require Accessibility permission: list, move, preset apply, preset rec
 Commands that do not require permission: help, version, completion, preset list, preset show, preset validate`,
 		SilenceUsage:  true,
 		SilenceErrors: true,
