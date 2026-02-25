@@ -93,7 +93,7 @@ func filterForMove(windows []ax.Window, opts MoveOptions) []ax.Window {
 		if opts.TitleFilter != "" && !strings.Contains(strings.ToLower(w.Title), strings.ToLower(opts.TitleFilter)) {
 			continue
 		}
-		if opts.ScreenFilter != "" && !matchScreen(w, opts.ScreenFilter) {
+		if opts.ScreenFilter != "" && !MatchScreen(w, opts.ScreenFilter) {
 			continue
 		}
 		result = append(result, w)
