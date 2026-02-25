@@ -140,7 +140,9 @@ func buildApplyResponse(name string, outcome *preset.ApplyOutcome, success bool,
 }
 
 func newPresetRecCmd(svc ax.WindowService, flags *RootFlags) *cobra.Command {
-	return &cobra.Command{
+	var screen string
+
+	cmd := &cobra.Command{
 		Use:   "rec <name> [output-path]",
 		Short: "Record current window layout as a preset",
 		Long:  "Capture the current window positions and sizes and output them as a YAML preset definition.",
@@ -166,7 +168,9 @@ func newPresetRecCmd(svc ax.WindowService, flags *RootFlags) *cobra.Command {
 			ctx, cancel := context.WithTimeout(cmd.Context(), flags.Timeout)
 			defer cancel()
 
-			p, err := preset.Record(ctx, svc, name)
+			p, err := preset.Record(ctx, svc, name, preset.RecordOptions{
+				Screen: screen,
+			})
 			if err != nil {
 				if errors.Is(err, context.DeadlineExceeded) {
 					_ = f.PrintError(6, "AX operation timed out", nil)
@@ -194,6 +198,10 @@ func newPresetRecCmd(svc ax.WindowService, flags *RootFlags) *cobra.Command {
 			return nil
 		},
 	}
+
+	cmd.Flags().StringVar(&screen, "screen", "", "record only windows on the specified screen (name or ID)")
+
+	return cmd
 }
 
 func newPresetListCmd(flags *RootFlags) *cobra.Command {

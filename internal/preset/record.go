@@ -5,12 +5,18 @@ import (
 	"fmt"
 
 	"github.com/peacock0803sz/mado/internal/ax"
+	"github.com/peacock0803sz/mado/internal/window"
 )
+
+// RecordOptions holds optional parameters for Record.
+type RecordOptions struct {
+	Screen string // filter by screen name or ID (empty = all screens)
+}
 
 // Record captures the current window layout and returns it as a Preset.
 // Only windows with StateNormal are included. When multiple windows belong to
 // the same application, the title field is populated for disambiguation.
-func Record(ctx context.Context, svc ax.WindowService, name string) (*Preset, error) {
+func Record(ctx context.Context, svc ax.WindowService, name string, opts RecordOptions) (*Preset, error) {
 	if !namePattern.MatchString(name) {
 		return nil, fmt.Errorf("invalid preset name %q: must match %s", name, namePattern.String())
 	}
@@ -25,6 +31,9 @@ func Record(ctx context.Context, svc ax.WindowService, name string) (*Preset, er
 	var normal []ax.Window
 	for _, w := range windows {
 		if w.State != ax.StateNormal {
+			continue
+		}
+		if opts.Screen != "" && !window.MatchScreen(w, opts.Screen) {
 			continue
 		}
 		normal = append(normal, w)
