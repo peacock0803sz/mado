@@ -1,3 +1,4 @@
+// Package main is the entry point for the mado CLI.
 package main
 
 import (
