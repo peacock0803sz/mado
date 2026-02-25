@@ -82,7 +82,7 @@ func Load() (Config, error) {
 		}
 	}
 
-	// プリセットのバリデーション
+	// Validate presets
 	if len(raw.Presets) > 0 {
 		if verrs := preset.ValidatePresets(raw.Presets); verrs != nil {
 			return cfg, fmt.Errorf("config (%s): preset validation failed: %s", path, verrs[0].Error())

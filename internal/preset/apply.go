@@ -195,15 +195,15 @@ func Apply(ctx context.Context, svc ax.WindowService, presets []Preset, name str
 func filterForRule(windows []ax.Window, rule Rule) []ax.Window {
 	var result []ax.Window
 	for _, w := range windows {
-		// app: 大小文字区別なし完全一致
+		// app: case-insensitive exact match
 		if !strings.EqualFold(w.AppName, rule.App) {
 			continue
 		}
-		// title: 大小文字区別なし部分一致
+		// title: case-insensitive partial match
 		if rule.Title != "" && !strings.Contains(strings.ToLower(w.Title), strings.ToLower(rule.Title)) {
 			continue
 		}
-		// screen: MatchScreen を再利用
+		// screen: reuse MatchScreen
 		if rule.Screen != "" && !window.MatchScreen(w, rule.Screen) {
 			continue
 		}

@@ -28,7 +28,7 @@ func ValidatePresets(presets []Preset) []ValidationError {
 	for i, p := range presets {
 		prefix := fmt.Sprintf("presets[%d]", i)
 
-		// プリセット名の検証
+		// Validate preset name
 		if p.Name == "" {
 			errs = append(errs, ValidationError{
 				Preset:  prefix,
@@ -56,7 +56,7 @@ func ValidatePresets(presets []Preset) []ValidationError {
 			name = prefix
 		}
 
-		// ルールの検証
+		// Validate rules
 		if len(p.Rules) == 0 {
 			errs = append(errs, ValidationError{
 				Preset:  name,

@@ -259,12 +259,12 @@ func newPresetValidateCmd(flags *RootFlags) *cobra.Command {
 
 			cfg, err := config.Load()
 			if err != nil {
-				// config.Load のバリデーションエラーを捕捉
+				// Catch validation errors from config.Load
 				_ = f.PrintError(3, err.Error(), nil)
 				os.Exit(3)
 			}
 
-			// Load が成功した場合、バリデーション済み
+			// If Load succeeds, presets are already validated
 			return f.PrintPresetValidateResult(len(cfg.Presets), nil)
 		},
 	}
