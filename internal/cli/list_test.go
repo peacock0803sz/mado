@@ -41,7 +41,7 @@ func executeListCmdCapture(t *testing.T, svc ax.WindowService, configContent str
 
 	execErr := cmd.Execute()
 
-	w.Close()
+	_ = w.Close()
 	captured, _ := io.ReadAll(r)
 	os.Stdout = oldStdout
 

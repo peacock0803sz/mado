@@ -73,7 +73,7 @@ func emitIgnoredWarnings(w io.Writer, outcome *preset.ApplyOutcome) {
 	}
 	for _, r := range outcome.Results {
 		if r.Reason == "ignored" {
-			fmt.Fprintf(w, "warning: preset rule[%d] (app: %q) skipped: app is in ignore_apps list\n", r.RuleIndex, r.AppFilter)
+			_, _ = fmt.Fprintf(w, "warning: preset rule[%d] (app: %q) skipped: app is in ignore_apps list\n", r.RuleIndex, r.AppFilter)
 		}
 	}
 }
