@@ -62,6 +62,18 @@ mado move --app Terminal --screen "Built-in Retina Display" --position 100,100
 
 # Enable shell completion (fish example)
 mado completion fish > ~/.config/fish/completions/mado.fish
+
+# Apply a window layout preset
+mado preset apply coding
+
+# List available presets
+mado preset list
+
+# Show preset details
+mado preset show coding
+
+# Validate preset definitions
+mado preset validate
 ```
 
 ## Configuration File
@@ -75,6 +87,37 @@ format: text   # output format: text | json
 ```
 
 The config file path can be overridden with the `$MADO_CONFIG` environment variable.
+
+### Presets
+
+Define named window layout presets in the same config file and apply them with a single command.
+
+```yaml
+timeout: 5s
+format: text
+presets:
+  - name: coding
+    description: "Editor left, terminal right"
+    rules:
+      - app: Code
+        position: [0, 0]
+        size: [960, 1080]
+      - app: Terminal
+        position: [960, 0]
+        size: [960, 1080]
+  - name: meeting
+    description: "Browser center, notes right"
+    rules:
+      - app: Safari
+        title: Zoom
+        position: [0, 0]
+        size: [1280, 1080]
+      - app: Notes
+        position: [1280, 0]
+        size: [640, 1080]
+```
+
+Each rule requires `app` (exact match, case-insensitive) and at least one of `position` or `size`. Optional filters: `title` (partial match) and `screen` (ID or name). Rules are evaluated in order; when multiple rules match the same window, only the first match is applied.
 
 ## Exit Codes
 

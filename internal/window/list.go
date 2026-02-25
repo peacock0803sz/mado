@@ -32,7 +32,7 @@ func filterWindows(windows []ax.Window, opts ListOptions) []ax.Window {
 		if opts.AppFilter != "" && !strings.EqualFold(w.AppName, opts.AppFilter) {
 			continue
 		}
-		if opts.ScreenFilter != "" && !matchScreen(w, opts.ScreenFilter) {
+		if opts.ScreenFilter != "" && !MatchScreen(w, opts.ScreenFilter) {
 			continue
 		}
 		result = append(result, w)
@@ -40,8 +40,8 @@ func filterWindows(windows []ax.Window, opts ListOptions) []ax.Window {
 	return result
 }
 
-// matchScreen filters a window by screen ID (numeric string) or screen name (case-insensitive).
-func matchScreen(w ax.Window, filter string) bool {
+// MatchScreen filters a window by screen ID (numeric string) or screen name (case-insensitive).
+func MatchScreen(w ax.Window, filter string) bool {
 	if strings.EqualFold(w.ScreenName, filter) {
 		return true
 	}

@@ -74,6 +74,78 @@ func TestLoad_InvalidFormat(t *testing.T) {
 	}
 }
 
+func TestLoad_PresetsValid(t *testing.T) {
+	dir := t.TempDir()
+	cfgFile := filepath.Join(dir, "config.yaml")
+	content := `presets:
+  - name: coding
+    description: "Editor left, terminal right"
+    rules:
+      - app: Code
+        position: [0, 0]
+        size: [960, 1080]
+      - app: Terminal
+        position: [960, 0]
+        size: [960, 1080]
+`
+	if err := os.WriteFile(cfgFile, []byte(content), 0o600); err != nil {
+		t.Fatal(err)
+	}
+
+	t.Setenv("MADO_CONFIG", cfgFile)
+	cfg, err := config.Load()
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if len(cfg.Presets) != 1 {
+		t.Fatalf("expected 1 preset, got %d", len(cfg.Presets))
+	}
+	if cfg.Presets[0].Name != "coding" {
+		t.Errorf("expected preset name 'coding', got %q", cfg.Presets[0].Name)
+	}
+	if len(cfg.Presets[0].Rules) != 2 {
+		t.Errorf("expected 2 rules, got %d", len(cfg.Presets[0].Rules))
+	}
+}
+
+func TestLoad_PresetsInvalid(t *testing.T) {
+	dir := t.TempDir()
+	cfgFile := filepath.Join(dir, "config.yaml")
+	// ルールにappフィールドがない不正なプリセット
+	content := `presets:
+  - name: broken
+    rules:
+      - position: [0, 0]
+`
+	if err := os.WriteFile(cfgFile, []byte(content), 0o600); err != nil {
+		t.Fatal(err)
+	}
+
+	t.Setenv("MADO_CONFIG", cfgFile)
+	_, err := config.Load()
+	if err == nil {
+		t.Fatal("expected validation error for invalid preset, got nil")
+	}
+}
+
+func TestLoad_PresetsEmpty(t *testing.T) {
+	dir := t.TempDir()
+	cfgFile := filepath.Join(dir, "config.yaml")
+	content := "presets: []\n"
+	if err := os.WriteFile(cfgFile, []byte(content), 0o600); err != nil {
+		t.Fatal(err)
+	}
+
+	t.Setenv("MADO_CONFIG", cfgFile)
+	cfg, err := config.Load()
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if len(cfg.Presets) != 0 {
+		t.Errorf("expected 0 presets, got %d", len(cfg.Presets))
+	}
+}
+
 func TestLoad_EnvOverride(t *testing.T) {
 	dir := t.TempDir()
 	cfgFile := filepath.Join(dir, "config.yaml")
