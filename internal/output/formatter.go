@@ -157,11 +157,11 @@ func (f *Formatter) printJSON(v any) error {
 	return enc.Encode(v)
 }
 
-// truncate truncates s to at most max runes.
-func truncate(s string, max int) string {
+// truncate truncates s to at most limit runes.
+func truncate(s string, limit int) string {
 	runes := []rune(s)
-	if len(runes) <= max {
+	if len(runes) <= limit {
 		return s
 	}
-	return string(runes[:max-1]) + "…"
+	return string(runes[:limit-1]) + "…"
 }
