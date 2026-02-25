@@ -14,6 +14,7 @@ import (
 // Format represents the type of output format.
 type Format string
 
+// Output format constants.
 const (
 	FormatText Format = "text"
 	FormatJSON Format = "json"
