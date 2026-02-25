@@ -9,6 +9,8 @@ import (
 	"time"
 
 	"go.yaml.in/yaml/v4"
+
+	"github.com/peacock0803sz/mado/internal/preset"
 )
 
 // Config is the structure of the mado configuration file.
@@ -16,13 +18,15 @@ import (
 type Config struct {
 	Timeout time.Duration
 	Format  string
+	Presets []preset.Preset
 }
 
 // rawConfig is an intermediate structure for YAML parsing.
 // time.Duration cannot be decoded directly from YAML, so it is received as a string.
 type rawConfig struct {
-	Timeout string `yaml:"timeout"`
-	Format  string `yaml:"format"`
+	Timeout string          `yaml:"timeout"`
+	Format  string          `yaml:"format"`
+	Presets []preset.Preset `yaml:"presets"`
 }
 
 // Default returns the default configuration.
@@ -76,6 +80,14 @@ func Load() (Config, error) {
 		default:
 			return cfg, fmt.Errorf("config: invalid format %q (must be \"text\" or \"json\")", raw.Format)
 		}
+	}
+
+	// プリセットのバリデーション
+	if len(raw.Presets) > 0 {
+		if verrs := preset.ValidatePresets(raw.Presets); verrs != nil {
+			return cfg, fmt.Errorf("config (%s): preset validation failed: %s", path, verrs[0].Error())
+		}
+		cfg.Presets = raw.Presets
 	}
 
 	return cfg, nil

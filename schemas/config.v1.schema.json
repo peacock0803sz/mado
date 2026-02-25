@@ -18,6 +18,68 @@
       "description": "Default output format",
       "enum": ["text", "json"],
       "default": "text"
+    },
+    "presets": {
+      "type": "array",
+      "description": "Named window layout presets",
+      "items": {
+        "type": "object",
+        "required": ["name", "rules"],
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Preset name (alphanumeric, hyphens, underscores)",
+            "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_-]*$"
+          },
+          "description": {
+            "type": "string",
+            "description": "Human-readable description of the preset"
+          },
+          "rules": {
+            "type": "array",
+            "description": "Window operation rules (evaluated in order, first match wins)",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "required": ["app"],
+              "additionalProperties": false,
+              "properties": {
+                "app": {
+                  "type": "string",
+                  "description": "Application name (case-insensitive exact match)"
+                },
+                "title": {
+                  "type": "string",
+                  "description": "Window title filter (case-insensitive partial match)"
+                },
+                "screen": {
+                  "type": "string",
+                  "description": "Screen ID or name filter"
+                },
+                "position": {
+                  "type": "array",
+                  "description": "Target position [x, y] in global coordinates",
+                  "items": { "type": "integer" },
+                  "minItems": 2,
+                  "maxItems": 2
+                },
+                "size": {
+                  "type": "array",
+                  "description": "Target size [width, height] (positive integers)",
+                  "items": { "type": "integer", "minimum": 1 },
+                  "minItems": 2,
+                  "maxItems": 2
+                }
+              },
+              "anyOf": [
+                { "required": ["position"] },
+                { "required": ["size"] }
+              ]
+            }
+          }
+        }
+      }
     }
   }
 }
