@@ -191,7 +191,7 @@ func newPresetRecCmd(svc ax.WindowService, flags *RootFlags) *cobra.Command {
 				return err
 			}
 
-			if err := os.WriteFile(outputPath, data, 0o644); err != nil {
+			if err := os.WriteFile(outputPath, data, 0o600); err != nil {
 				_ = f.PrintError(1, err.Error(), nil)
 				os.Exit(1)
 			}
