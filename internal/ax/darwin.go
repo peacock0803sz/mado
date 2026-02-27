@@ -14,6 +14,8 @@ package ax
 
 // --- CGS Private API (SkyLight.framework via dlsym) ---
 
+#define kCGSAllSpacesMask 0x7
+
 typedef int CGSConnectionID;
 typedef CFDictionaryRef (*CGSCopySpacesForWindows_f)(CGSConnectionID, int, CFArrayRef);
 typedef CFArrayRef      (*CGSCopyManagedDisplaySpaces_f)(CGSConnectionID);
@@ -43,7 +45,7 @@ static CGSConnectionID cgs_get_cid(void) { return _cgs_main_connection_id(); }
 
 // Batch: returns CFDictionaryRef{windowID -> [spaceID,...]}. Caller must CFRelease.
 static CFDictionaryRef cgs_copy_spaces_for_windows(CGSConnectionID cid, CFArrayRef wids) {
-    return _cgs_spaces_for_windows(cid, 0x7, wids);
+    return _cgs_spaces_for_windows(cid, kCGSAllSpacesMask, wids);
 }
 
 // Returns CFArrayRef of display info dicts. Caller must CFRelease.
