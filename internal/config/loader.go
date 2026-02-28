@@ -134,12 +134,16 @@ func configPath() (string, error) {
 	xdgPath := filepath.Join(baseDir, "mado", "config.yaml")
 	if _, err := os.Stat(xdgPath); err == nil { //nolint:gosec // G703: xdgPath is from trusted XDG/home dirs, not user input
 		return xdgPath, nil
+	} else if !errors.Is(err, os.ErrNotExist) {
+		return "", fmt.Errorf("cannot access config %s: %w", xdgPath, err)
 	}
 
 	// 3. /etc/mado/config.yaml — system-level fallback (nix-darwin writes here)
 	const etcPath = "/etc/mado/config.yaml"
 	if _, err := os.Stat(etcPath); err == nil {
 		return etcPath, nil
+	} else if !errors.Is(err, os.ErrNotExist) {
+		return "", fmt.Errorf("cannot access config %s: %w", etcPath, err)
 	}
 
 	// No config file found; return XDG path so callers see ErrNotExist
