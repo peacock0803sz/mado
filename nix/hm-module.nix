@@ -16,7 +16,7 @@ in
 
     package = lib.mkOption {
       type = lib.types.package;
-      description = "The mado package to install. Pass from flake input: mado.packages.\${system}.default";
+      description = "The mado package to install. Pass from flake input: mado.packages.\${pkgs.system}.default";
     };
 
     settings = lib.mkOption {
