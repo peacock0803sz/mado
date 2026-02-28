@@ -21,7 +21,7 @@ type JSONSchema struct {
 	Pattern     string                 `json:"pattern"`
 	Default     any                    `json:"default"`
 	Required    []string               `json:"required"`
-	AnyOf       []*JSONSchema           `json:"anyOf"`
+	AnyOf       []*JSONSchema          `json:"anyOf"`
 	Minimum     *float64               `json:"minimum"`
 	MinItems    *int                   `json:"minItems"`
 	MaxItems    *int                   `json:"maxItems"`
@@ -173,25 +173,25 @@ func (g *generator) baseType(name string, prop *JSONSchema, nullable bool, inden
 	case "array":
 		fieldExpr := ctx.refFn(name)
 		if prop.MinItems != nil {
-			min := *prop.MinItems
-			inner := fmt.Sprintf("builtins.length %s >= %d", fieldExpr, min)
+			minItems := *prop.MinItems
+			inner := fmt.Sprintf("builtins.length %s >= %d", fieldExpr, minItems)
 			if nullable {
 				inner = fieldExpr + " == null || " + inner
 			}
 			g.asserts = append(g.asserts, nixAssert{
 				condition: makeGuard(ctx.nullGuards) + ctx.wrapFn(inner),
-				message:   fmt.Sprintf("%s must have at least %d item(s)", name, min),
+				message:   fmt.Sprintf("%s must have at least %d item(s)", name, minItems),
 			})
 		}
 		if prop.MaxItems != nil {
-			max := *prop.MaxItems
-			inner := fmt.Sprintf("builtins.length %s <= %d", fieldExpr, max)
+			maxItems := *prop.MaxItems
+			inner := fmt.Sprintf("builtins.length %s <= %d", fieldExpr, maxItems)
 			if nullable {
 				inner = fieldExpr + " == null || " + inner
 			}
 			g.asserts = append(g.asserts, nixAssert{
 				condition: makeGuard(ctx.nullGuards) + ctx.wrapFn(inner),
-				message:   fmt.Sprintf("%s must have at most %d item(s)", name, max),
+				message:   fmt.Sprintf("%s must have at most %d item(s)", name, maxItems),
 			})
 		}
 		if prop.Items != nil {
