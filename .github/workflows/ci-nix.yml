@@ -11,6 +11,7 @@ on:
       - 'cmd/nix-options-gen/**'
       - 'go.mod'
       - 'go.sum'
+      - '.github/workflows/ci-nix.yml'
   pull_request:
     paths:
       - 'flake.nix'
@@ -20,6 +21,7 @@ on:
       - 'cmd/nix-options-gen/**'
       - 'go.mod'
       - 'go.sum'
+      - '.github/workflows/ci-nix.yml'
 
 jobs:
   nix-codegen-check:
