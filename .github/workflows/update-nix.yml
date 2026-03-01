@@ -31,7 +31,7 @@ jobs:
           nix flake update && nix build .#default
 
           if [[ $(git status --untracked-files --short) ]]; then
-            git add .
+            git add flake.lock
             git commit -m "Update flake.lock"
             git push origin HEAD
           else
