@@ -32,7 +32,7 @@ jobs:
 
           if [[ $(git status --untracked-files --short) ]]; then
             git add flake.lock
-            git commit -m "Update flake.lock"
+            git commit -m ":snowflake: Update flake.lock"
             git push origin HEAD
           else
             echo "Nothing to commit"
